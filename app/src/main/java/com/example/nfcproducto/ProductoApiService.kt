@@ -10,19 +10,19 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ProductoApiService {
-    @GET("producto")
+    @GET("productos")
     suspend fun selectProductos(): List<ProductoModel>
 
     @GET("producto/{id}")
     suspend fun selectProducto(@Path("id") id: String): Response<ProductoModel>
 
     @Headers("Content-Type: application/json")
-    @POST("producto")
+    @POST("productos")
     suspend fun insertProducto(@Body producto: ProductoModel): Response<ProductoModel>
 
-    @PUT("producto/{id}")
+    @PUT("productos/{id}")
     suspend fun updateProducto(@Path("id") id: String, @Body producto: ProductoModel): Response<ProductoModel>
 
-    @DELETE("producto/{id}")
+    @DELETE("productos/{id}")
     suspend fun deleteProducto(@Path("id") id: String): Response<ProductoModel>
 }

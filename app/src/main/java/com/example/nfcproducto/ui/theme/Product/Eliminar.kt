@@ -34,3 +34,31 @@ import androidx.navigation.NavHostController
 import com.example.nfcproducto.ProductoApiService
 import com.example.nfcproducto.ProductoModel
 import kotlinx.coroutines.delay
+
+@Composable
+fun ContenidoProductoEliminar(navController: NavHostController, servicio: ProductoApiService, productoId: Int) {
+    var confirmDelete by remember { mutableStateOf(false) }
+
+    if (confirmDelete) {
+        LaunchedEffect(Unit) {
+            servicio.deleteProducto(productoId.toString())
+            navController.navigate("productos")
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = { navController.navigate("productos") },
+        confirmButton = {
+            Button(onClick = { confirmDelete = true }) {
+                Text(text = "Eliminar")
+            }
+        },
+        dismissButton = {
+            Button(onClick = { navController.navigate("productos") }) {
+                Text(text = "Cancelar")
+            }
+        },
+        title = { Text(text = "Eliminar Producto") },
+        text = { Text(text = "¿Está seguro de eliminar este producto?") }
+    )
+}
