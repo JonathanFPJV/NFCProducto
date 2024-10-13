@@ -33,6 +33,7 @@ import com.example.nfcproducto.ui.theme.Product.ContenidoProductoDetalle
 import com.example.nfcproducto.ui.theme.Product.ContenidoProductoEliminar
 import com.example.nfcproducto.ui.theme.Product.ContenidoProductoFormulario
 import com.example.nfcproducto.ui.theme.Product.ContenidoProductosListado
+import com.example.nfcproducto.ui.theme.Product.ProductoApiServiceC
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -46,6 +47,7 @@ fun AlmacenApp() {
     val nfcApiService = retrofit.create(NfcApiService::class.java)
     val categoryApiService = retrofit.create(CategoryApiService::class.java)
     val productoApiService = retrofit.create(ProductoApiService::class.java)
+    val productoApiServiceC = retrofit.create(ProductoApiServiceC::class.java)
 
     val navController = rememberNavController()
 
@@ -59,7 +61,8 @@ fun AlmacenApp() {
                 navController = navController,
                 nfcApiService = nfcApiService,
                 categoryApiService = categoryApiService,
-                productoApiService = productoApiService
+                productoApiService = productoApiService,
+                productoApiServiceC = productoApiServiceC
             )
         }
     )
@@ -119,6 +122,7 @@ fun Contenido(
     pv: PaddingValues,
     navController: NavHostController,
     productoApiService: ProductoApiService, // Incluye ProductoApiService
+    productoApiServiceC: ProductoApiServiceC, // Incluye ProductoApiService
     nfcApiService: NfcApiService, // Incluye NfcApiService
     categoryApiService: CategoryApiService // Incluye CategoryApiService
 ) {
@@ -135,10 +139,10 @@ fun Contenido(
 
             // Vistas para productos
             composable("productos") {
-                ContenidoProductosListado(navController, productoApiService)
+                ContenidoProductosListado(navController, productoApiServiceC)
             }
             composable("productoNuevo") {
-                ContenidoProductoFormulario(navController, productoApiService, 0)
+                ContenidoProductoFormulario(navController, productoApiServiceC, 0)
             }
             composable("productoVer/{id}", arguments = listOf(
                 navArgument("id") { type = NavType.IntType })
@@ -148,12 +152,12 @@ fun Contenido(
             composable("productoEditar/{id}", arguments = listOf(
                 navArgument("id") { type = NavType.IntType })
             ) {
-                ContenidoProductoFormulario(navController, productoApiService, it.arguments!!.getInt("id"))
+                ContenidoProductoFormulario(navController, productoApiServiceC, it.arguments!!.getInt("id"))
             }
             composable("productoDel/{id}", arguments = listOf(
                 navArgument("id") { type = NavType.IntType })
             ) {
-                ContenidoProductoEliminar(navController, productoApiService, it.arguments!!.getInt("id"))
+                ContenidoProductoEliminar(navController, productoApiServiceC, it.arguments!!.getInt("id"))
             }
         }
     }

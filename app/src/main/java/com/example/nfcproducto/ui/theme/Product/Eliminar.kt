@@ -36,16 +36,23 @@ import com.example.nfcproducto.ProductoModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun ContenidoProductoEliminar(navController: NavHostController, servicio: ProductoApiService, id: Int) {
+fun ContenidoProductoEliminar(navController: NavHostController, servicio: ProductoApiServiceC, id: Int) {
     var confirmDelete by remember { mutableStateOf(false) }
 
     if (confirmDelete) {
         LaunchedEffect(Unit) {
-            servicio.deleteProducto(id.toString())
-            navController.navigate("productos")
+            // Llamamos al nuevo método deleteProducto de ProductoApiServiceC
+            val response = servicio.deleteProducto(id.toString())
+            if (response.isSuccessful) {
+                navController.navigate("productos") // Navegamos de vuelta a la lista de productos tras el borrado
+            } else {
+                // Manejar error si es necesario
+                // Puedes mostrar un mensaje o hacer un log de la respuesta
+            }
         }
     }
 
+    // Configuración de AlertDialog para confirmar la eliminación
     AlertDialog(
         onDismissRequest = { navController.navigate("productos") },
         confirmButton = {
@@ -62,3 +69,4 @@ fun ContenidoProductoEliminar(navController: NavHostController, servicio: Produc
         text = { Text(text = "¿Está seguro de eliminar este producto?") }
     )
 }
+

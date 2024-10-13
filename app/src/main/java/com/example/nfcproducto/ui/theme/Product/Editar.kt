@@ -42,14 +42,14 @@ import com.example.nfcproducto.ProductoModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun ContenidoProductoFormulario(navController: NavHostController, servicio: ProductoApiService, productoId: Int = 0) {
+fun ContenidoProductoFormulario(navController: NavHostController, servicio: ProductoApiServiceC, productoId: Int = 0) {
     var id by remember { mutableStateOf(productoId) }
     var name by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
-    var categoryId by remember { mutableStateOf("") }
-    var nfcTag by remember { mutableStateOf("") }
+    var categoryId by remember { mutableStateOf("") } // Usaremos solo el ID de la categoría
+    var nfcTag by remember { mutableStateOf("") } // Cambiamos para manejar el ID NFC si está presente
     var description by remember { mutableStateOf("Descripción del Producto") }
-    var imgUrl by remember { mutableStateOf("") } // Campo para la URL de la imagen
+    var imgUrl by remember { mutableStateOf("") } // Campo para la URL de la imagen (opcional)
     var grabar by remember { mutableStateOf(false) }
 
     // Cargar los datos si estamos editando un producto existente
@@ -60,8 +60,8 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
             objProducto.body()?.let {
                 name = it.name
                 price = it.price.toString()
-                categoryId = it.category.id.toString()
-                nfcTag = it.idNFC?.id_tag ?: ""
+                categoryId = it.category.id.toString() // Solo el ID de la categoría
+                nfcTag = it.idNFC?.id_tag ?: "" // ID NFC o vacío si es nulo
                 description = it.description
                 imgUrl = it.img ?: ""
             }
@@ -69,7 +69,9 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         TextField(
             value = name,
@@ -99,7 +101,7 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
         TextField(
             value = nfcTag,
             onValueChange = { nfcTag = it },
-            label = { Text("ID Tag NFC") },
+            label = { Text("ID Tag NFC (opcional)") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -133,14 +135,14 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
 
     // Manejar la acción de guardar los datos del producto
     if (grabar) {
-        val nuevoProducto = ProductoModel(
-            id = id,
+        val idNfc = if (nfcTag.isNotEmpty()) nfcTag.toIntOrNull() else null
+        val nuevoProducto = ProductoModelPost(
             name = name,
             img = if (imgUrl.isNotEmpty()) imgUrl else null, // Guardar la imagen solo si hay una URL
             price = price.toDoubleOrNull() ?: 0.0,
             description = description,
-            category = CategoryModel(id = categoryId.toInt(), name = "Categoría", img = null),
-            idNFC = if (nfcTag.isNotEmpty()) NfcModel(id = 0, id_tag = nfcTag, status = "activo", fecha_asignado = "2024-01-01") else null
+            categoryId = categoryId.toInt(), // Solo enviamos el ID de la categoría
+            idNfc = idNfc // Enviar null si no hay NFC
         )
 
         LaunchedEffect(Unit) {
@@ -154,3 +156,4 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
         grabar = false
     }
 }
+

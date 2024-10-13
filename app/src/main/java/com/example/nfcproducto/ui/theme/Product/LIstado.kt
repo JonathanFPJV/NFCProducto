@@ -49,8 +49,8 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContenidoProductosListado(navController: NavHostController, servicio: ProductoApiService) {
-    var listaProductos: SnapshotStateList<ProductoModel> = remember { mutableStateListOf() }
+fun ContenidoProductosListado(navController: NavHostController, servicio: ProductoApiServiceC) {
+    var listaProductos: SnapshotStateList<ProductoModelGet> = remember { mutableStateListOf() }
 
     LaunchedEffect(Unit) {
         val productos = servicio.selectProductos()
@@ -70,7 +70,6 @@ fun ContenidoProductosListado(navController: NavHostController, servicio: Produc
                     Icon(Icons.Default.Add, contentDescription = "Agregar Producto")
                 }
             },
-
         )
 
         // Lista de productos
@@ -126,5 +125,6 @@ fun ContenidoProductosListado(navController: NavHostController, servicio: Produc
         }
     }
 }
+
 
 
