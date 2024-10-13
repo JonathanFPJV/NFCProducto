@@ -36,12 +36,12 @@ import com.example.nfcproducto.ProductoModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun ContenidoProductoEliminar(navController: NavHostController, servicio: ProductoApiService, productoId: Int) {
+fun ContenidoProductoEliminar(navController: NavHostController, servicio: ProductoApiService, id: Int) {
     var confirmDelete by remember { mutableStateOf(false) }
 
     if (confirmDelete) {
         LaunchedEffect(Unit) {
-            servicio.deleteProducto(productoId.toString())
+            servicio.deleteProducto(id.toString())
             navController.navigate("productos")
         }
     }

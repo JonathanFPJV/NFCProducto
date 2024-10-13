@@ -13,16 +13,16 @@ interface ProductoApiService {
     @GET("productos")
     suspend fun selectProductos(): List<ProductoModel>
 
-    @GET("producto/{id}")
+    @GET("productos/{id}/")
     suspend fun selectProducto(@Path("id") id: String): Response<ProductoModel>
 
     @Headers("Content-Type: application/json")
-    @POST("productos")
+    @POST("productos/")
     suspend fun insertProducto(@Body producto: ProductoModel): Response<ProductoModel>
 
-    @PUT("productos/{id}")
+    @PUT("productos/{id}/")
     suspend fun updateProducto(@Path("id") id: String, @Body producto: ProductoModel): Response<ProductoModel>
 
-    @DELETE("productos/{id}")
+    @DELETE("productos/{id}/")
     suspend fun deleteProducto(@Path("id") id: String): Response<ProductoModel>
 }
