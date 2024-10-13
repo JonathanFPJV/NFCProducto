@@ -3,8 +3,10 @@ package com.example.nfcproducto.ui.theme.Product
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -46,7 +48,8 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
     var price by remember { mutableStateOf("") }
     var categoryId by remember { mutableStateOf("") }
     var nfcTag by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("Descripción") }
+    var description by remember { mutableStateOf("Descripción del Producto") }
+    var imgUrl by remember { mutableStateOf("") } // Campo para la URL de la imagen
     var grabar by remember { mutableStateOf(false) }
 
     // Cargar los datos si estamos editando un producto existente
@@ -54,11 +57,14 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
         LaunchedEffect(Unit) {
             val objProducto = servicio.selectProducto(id.toString())
             delay(100)
-            name = objProducto.body()?.name ?: ""
-            price = objProducto.body()?.price?.toString() ?: ""
-            categoryId = objProducto.body()?.category?.id.toString() ?: ""
-            nfcTag = objProducto.body()?.idNFC?.id_tag ?: ""
-            description = objProducto.body()?.description ?: "Descripción"
+            objProducto.body()?.let {
+                name = it.name
+                price = it.price.toString()
+                categoryId = it.category.id.toString()
+                nfcTag = it.idNFC?.id_tag ?: ""
+                description = it.description
+                imgUrl = it.img ?: ""
+            }
         }
     }
 
@@ -69,32 +75,57 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
             value = name,
             onValueChange = { name = it },
             label = { Text("Nombre del Producto") },
-            singleLine = true
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
+
         TextField(
             value = price,
             onValueChange = { price = it },
             label = { Text("Precio") },
             singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
         )
+
         TextField(
             value = categoryId,
             onValueChange = { categoryId = it },
             label = { Text("ID de Categoría") },
-            singleLine = true
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
+
         TextField(
             value = nfcTag,
             onValueChange = { nfcTag = it },
             label = { Text("ID Tag NFC") },
-            singleLine = true
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
+
+        TextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Descripción") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        TextField(
+            value = imgUrl,
+            onValueChange = { imgUrl = it },
+            label = { Text("URL de la Imagen (opcional)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
                 grabar = true
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Guardar", fontSize = 16.sp)
         }
@@ -105,7 +136,7 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
         val nuevoProducto = ProductoModel(
             id = id,
             name = name,
-            img = null, // Imagen nula por ahora
+            img = if (imgUrl.isNotEmpty()) imgUrl else null, // Guardar la imagen solo si hay una URL
             price = price.toDoubleOrNull() ?: 0.0,
             description = description,
             category = CategoryModel(id = categoryId.toInt(), name = "Categoría", img = null),
@@ -123,4 +154,3 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
         grabar = false
     }
 }
-
