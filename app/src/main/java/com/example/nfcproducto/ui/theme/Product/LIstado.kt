@@ -85,7 +85,7 @@ fun ContenidoProductosListado(navController: NavHostController, servicio: Produc
                             navController.navigate("productoVer/${producto.id}")
                         },
                     shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(Color(0xFF48E8E4))
+                    colors = CardDefaults.cardColors(Color(0xFFE5BE87))
                 ) {
                     Row(
                         modifier = Modifier

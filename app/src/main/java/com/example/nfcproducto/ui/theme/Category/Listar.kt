@@ -1,12 +1,19 @@
 package com.example.nfcproducto.ui.theme.Category
 import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
@@ -32,53 +39,107 @@ import androidx.navigation.NavHostController
 import com.example.nfcproducto.CategoryApiService
 import com.example.nfcproducto.CategoryModel
 import kotlinx.coroutines.delay
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.nfcproducto.ProductoApiService
+import com.example.nfcproducto.ProductoModel
+import kotlinx.coroutines.delay
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContenidoCategoryListado(navController: NavHostController, servicio: CategoryApiService) {
     var listaCategorias: SnapshotStateList<CategoryModel> = remember { mutableStateListOf() }
 
+    // Cargamos las categorías desde el servicio
     LaunchedEffect(Unit) {
-        val listado = servicio.selectCategories()
-        listado.forEach { listaCategorias.add(it) }
+        val categorias = servicio.selectCategories()
+        listaCategorias.addAll(categorias)
     }
 
-    LazyColumn {
-        item {
-            Row(
-                modifier = Modifier.fillParentMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "ID", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(0.1f))
-                Text(text = "CATEGORÍA", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(0.7f))
-                Text(text = "Acción", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(0.2f))
-            }
-        }
-
-        items(listaCategorias) { item ->
-            Row(
-                modifier = Modifier.padding(start = 8.dp).fillParentMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "${item.id}", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(0.1f))
-                Text(text = item.name, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(0.6f))
-                IconButton(
-                    onClick = {
-                        navController.navigate("categoryEdit/${item.id}")
-                    },
-                    Modifier.weight(0.1f)
-                ) {
-                    Icon(imageVector = Icons.Outlined.Edit, contentDescription = "Editar", modifier = Modifier.align(Alignment.CenterVertically))
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Barra superior
+        TopAppBar(
+            title = { Text(text = "Listado de Categorías") },
+            actions = {
+                // Botón de agregar nueva categoría
+                IconButton(onClick = {
+                    // Navegar a la vista de agregar una nueva categoría
+                    navController.navigate("categoriaNueva")
+                }) {
+                    Icon(Icons.Default.Add, contentDescription = "Agregar Categoría")
                 }
-                IconButton(
-                    onClick = {
-                        navController.navigate("categoryDelete/${item.id}")
-                    },
-                    Modifier.weight(0.1f)
+            },
+        )
+
+        // Lista de categorías
+        LazyColumn(modifier = Modifier.padding(8.dp)) {
+            items(listaCategorias) { categoria ->
+                // Cada categoría se muestra en una tarjeta
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .clickable {
+                            // Navegar a la vista de detalles al hacer clic en la tarjeta
+                            navController.navigate("categoriaVer/${categoria.id}")
+                        },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(Color(0xFF87CEEB)) // Diferente color para categorías
                 ) {
-                    Icon(imageVector = Icons.Outlined.Delete, contentDescription = "Eliminar", modifier = Modifier.align(Alignment.CenterVertically))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // Mostrar la información de la categoría
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = categoria.name, style = MaterialTheme.typography.headlineMedium)
+                            // Mostrar la imagen solo si está disponible
+                            if (!categoria.img.isNullOrEmpty()) {
+                                Text(text = "Imagen: ${categoria.img}", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+
+                        // Botones de Editar y Eliminar
+                        Row {
+                            IconButton(onClick = {
+                                // Navegar a la vista de editar categoría
+                                navController.navigate("categoriaEditar/${categoria.id}")
+                            }) {
+                                Icon(Icons.Default.Edit, contentDescription = "Editar Categoría")
+                            }
+                            IconButton(onClick = {
+                                // Navegar a la vista de eliminar categoría
+                                navController.navigate("categoriaDel/${categoria.id}")
+                            }) {
+                                Icon(Icons.Default.Delete, contentDescription = "Eliminar Categoría")
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
+

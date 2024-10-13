@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -35,55 +36,94 @@ import com.example.nfcproducto.CategoryModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun ContenidoCategoryEditar(navController: NavHostController, servicio: CategoryApiService, categoryId: Int = 0) {
+fun ContenidoCategoryEditar(
+    navController: NavHostController,
+    servicio: CategoryApiService,
+    categoryId: Int = 0
+) {
     var id by remember { mutableStateOf(categoryId) }
     var name by remember { mutableStateOf("") }
-    var img by remember { mutableStateOf<String?>("") }
+    var img by remember { mutableStateOf<String?>(null) } // img puede ser null por defecto
     var grabar by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(id != 0) }
+    var isProcessing by remember { mutableStateOf(false) } // Estado para bloquear el botón mientras se procesa la solicitud
 
-    if (id != 0) {
-        LaunchedEffect(Unit) {
-            val objCategory = servicio.selectCategory(id.toString())
-            delay(100)
-            name = objCategory.body()?.name ?: ""
-            img = objCategory.body()?.img
+    // Cargar los datos de la categoría si es edición
+    LaunchedEffect(id) {
+        if (id != 0) {
+            val response = servicio.selectCategory(id.toString())
+            if (response.isSuccessful) {
+                val objCategory = response.body()
+                objCategory?.let {
+                    name = it.name
+                    img = it.img // img puede ser null
+                }
+            }
+            isLoading = false // Ya se cargaron los datos
         }
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Nombre de la Categoría") },
-            singleLine = true
-        )
-        TextField(
-            value = img ?: "",
-            onValueChange = { img = it },
-            label = { Text("URL de Imagen (opcional)") },
-            singleLine = true
-        )
-        Button(
-            onClick = {
-                grabar = true
+        // Mostrar los TextField solo cuando no está cargando
+        if (!isLoading) {
+            TextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nombre de la Categoría") },
+                singleLine = true
+            )
+            TextField(
+                value = img ?: "", // Muestra un campo vacío si img es null
+                onValueChange = { img = if (it.isEmpty()) null else it }, // Asigna null si el campo está vacío
+                label = { Text("URL de Imagen (opcional)") },
+                singleLine = true
+            )
+            Button(
+                onClick = { grabar = true }, // Al hacer clic, cambiar grabar a true
+                modifier = Modifier.padding(top = 16.dp),
+                enabled = !isProcessing // Deshabilitar mientras está procesando
+            ) {
+                Text("Guardar", fontSize = 16.sp)
             }
-        ) {
-            Text("Guardar", fontSize = 16.sp)
+        } else {
+            // Mostrar un indicador de carga mientras se obtienen los datos
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         }
     }
 
+    // Guardar la categoría (inserción o actualización)
     if (grabar) {
+        // Asegúrate de que el modelo se crea correctamente
         val objCategory = CategoryModel(id, name, img)
-        LaunchedEffect(Unit) {
-            if (id == 0) {
-                servicio.insertCategory(objCategory)
+
+        // Bloquear el botón durante el procesamiento
+        isProcessing = true
+
+        LaunchedEffect(grabar) {
+            val response = if (id == 0) {
+                servicio.insertCategory(objCategory.copy(id = 0)) // id se envía como 0 para nuevas inserciones
             } else {
                 servicio.updateCategory(id.toString(), objCategory)
             }
+
+            if (response.isSuccessful) {
+                // Redirigir a la pantalla de categorías después de guardar
+                navController.navigate("categorias") {
+                    popUpTo("categorias") { inclusive = true }
+                }
+            } else {
+                // Aquí puedes manejar el error
+            }
+
+            // Reiniciar el estado de grabar e isProcessing
+            grabar = false
+            isProcessing = false
         }
-        grabar = false
-        navController.navigate("categories")
     }
 }
+
+

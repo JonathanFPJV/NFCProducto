@@ -151,9 +151,10 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
             } else {
                 servicio.updateProducto(id.toString(), nuevoProducto)
             }
-            navController.navigate("productos")
+            grabar = false // Reinicia la variable para evitar re-render
+            navController.navigate("productos") // Redirige después de guardar
         }
-        grabar = false
     }
 }
+
 

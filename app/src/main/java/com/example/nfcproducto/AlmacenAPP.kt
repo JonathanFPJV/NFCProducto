@@ -29,6 +29,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.nfcproducto.ui.theme.Category.ContenidoCategoryEditar
+import com.example.nfcproducto.ui.theme.Category.ContenidoCategoryEliminar
+import com.example.nfcproducto.ui.theme.Category.ContenidoCategoryListado
 import com.example.nfcproducto.ui.theme.Product.ContenidoProductoDetalle
 import com.example.nfcproducto.ui.theme.Product.ContenidoProductoEliminar
 import com.example.nfcproducto.ui.theme.Product.ContenidoProductoFormulario
@@ -80,7 +83,7 @@ fun BarraSuperior() {
             )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color(0xFF48E8E4)
+            containerColor = Color(0xFFE89348)
         )
     )
 }
@@ -158,6 +161,23 @@ fun Contenido(
                 navArgument("id") { type = NavType.IntType })
             ) {
                 ContenidoProductoEliminar(navController, productoApiServiceC, it.arguments!!.getInt("id"))
+            }
+            // Vistas para categorias
+            composable("categorias") {
+                ContenidoCategoryListado(navController, categoryApiService)
+            }
+            composable("categoriaNueva") {
+                ContenidoCategoryEditar(navController, categoryApiService, 0)
+            }
+            composable("categoriaEditar/{id}", arguments = listOf(
+                navArgument("id") { type = NavType.IntType })
+            ) {
+                ContenidoCategoryEditar(navController, categoryApiService, it.arguments!!.getInt("id"))
+            }
+            composable("categoriaDel/{id}", arguments = listOf(
+                navArgument("id") { type = NavType.IntType })
+            ) {
+                ContenidoCategoryEliminar(navController, categoryApiService, it.arguments!!.getInt("id"))
             }
         }
     }
