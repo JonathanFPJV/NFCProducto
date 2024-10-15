@@ -17,6 +17,8 @@ data class ProductoModelGet (
     var description: String,
     @SerializedName("category")
     var category: CategoryModel, // Recibe el objeto completo de la categoría
+    @SerializedName("stock")
+    var stock: Int,
     @SerializedName("idNFC")
     var idNFC: NfcModel?  // Puede ser nulo si no tiene NFC asociado
 )

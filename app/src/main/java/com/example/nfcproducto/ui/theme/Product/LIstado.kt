@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -73,13 +74,13 @@ fun ContenidoProductosListado(navController: NavHostController, servicio: Produc
         )
 
         // Lista de productos
-        LazyColumn(modifier = Modifier.padding(8.dp)) {
+        LazyColumn(modifier = Modifier.padding(4.dp)) {  // Reduce el padding para ver más productos
             items(listaProductos) { producto ->
                 // Cada producto se muestra en una tarjeta
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                        .padding(vertical = 4.dp)  // Reduce el padding entre tarjetas
                         .clickable {
                             // Navegar a la vista de detalles al hacer clic en la tarjeta
                             navController.navigate("productoVer/${producto.id}")
@@ -90,17 +91,38 @@ fun ContenidoProductosListado(navController: NavHostController, servicio: Produc
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(12.dp),  // Reduce el padding dentro de la tarjeta
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         // Mostrar la información del producto
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = producto.name, style = MaterialTheme.typography.headlineMedium)
-                            Text(text = "Price: $${producto.price}", style = MaterialTheme.typography.bodyMedium)
-                            Text(text = "Category: ${producto.category.name}", style = MaterialTheme.typography.bodySmall)
+                            Text(
+                                text = producto.name,
+                                style = MaterialTheme.typography.titleMedium,  // Reduce el tamaño de la fuente
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = "Price: $${producto.price}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = "Category: ${producto.category.name}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                text = "Stock: ${producto.stock}",  // Muestra el nuevo campo Stock
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (producto.stock > 0) Color.Black else Color.Red  // Destaca si hay bajo stock
+                            )
                             producto.idNFC?.let {
-                                Text(text = "NFC: ${it.id_tag}", style = MaterialTheme.typography.bodySmall)
+                                Text(
+                                    text = "NFC: ${it.id_tag}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
                             }
                         }
 
@@ -125,6 +147,7 @@ fun ContenidoProductosListado(navController: NavHostController, servicio: Produc
         }
     }
 }
+
 
 
 

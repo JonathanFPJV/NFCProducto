@@ -41,14 +41,16 @@ import com.example.nfcproducto.ProductoApiService
 import com.example.nfcproducto.ProductoModel
 import kotlinx.coroutines.delay
 
+
 @Composable
 fun ContenidoProductoFormulario(navController: NavHostController, servicio: ProductoApiServiceC, productoId: Int = 0) {
     var id by remember { mutableStateOf(productoId) }
     var name by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
-    var categoryId by remember { mutableStateOf("") } // Usaremos solo el ID de la categoría
+    var categoryId by remember { mutableStateOf("") } // Usamos solo el ID de la categoría
     var nfcTag by remember { mutableStateOf("") } // Cambiamos para manejar el ID NFC si está presente
     var description by remember { mutableStateOf("Descripción del Producto") }
+    var stock by remember { mutableStateOf("") } // Nuevo campo para el stock
     var imgUrl by remember { mutableStateOf("") } // Campo para la URL de la imagen (opcional)
     var grabar by remember { mutableStateOf(false) }
 
@@ -63,6 +65,7 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
                 categoryId = it.category.id.toString() // Solo el ID de la categoría
                 nfcTag = it.idNFC?.id_tag ?: "" // ID NFC o vacío si es nulo
                 description = it.description
+                stock = it.stock.toString() // Asignar el valor de stock
                 imgUrl = it.img ?: ""
             }
         }
@@ -114,6 +117,15 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
         )
 
         TextField(
+            value = stock, // Campo de stock
+            onValueChange = { stock = it },
+            label = { Text("Stock") }, // Nuevo campo para el stock
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number), // Aseguramos que solo números sean ingresados
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        TextField(
             value = imgUrl,
             onValueChange = { imgUrl = it },
             label = { Text("URL de la Imagen (opcional)") },
@@ -141,7 +153,8 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
             img = if (imgUrl.isNotEmpty()) imgUrl else null, // Guardar la imagen solo si hay una URL
             price = price.toDoubleOrNull() ?: 0.0,
             description = description,
-            categoryId = categoryId.toInt(), // Solo enviamos el ID de la categoría
+            categoryId = categoryId.toIntOrNull() ?: 0, // Validar que el ID de categoría sea un número
+            stock = stock.toIntOrNull() ?: 0, // Convertir el valor de stock a entero
             idNfc = idNfc // Enviar null si no hay NFC
         )
 
@@ -156,5 +169,6 @@ fun ContenidoProductoFormulario(navController: NavHostController, servicio: Prod
         }
     }
 }
+
 
 

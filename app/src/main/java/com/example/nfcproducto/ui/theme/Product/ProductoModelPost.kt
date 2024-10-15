@@ -13,6 +13,8 @@ data class ProductoModelPost (
     var description: String,
     @SerializedName("category_id")
     var categoryId: Int, // Solo el ID de la categoría
+    @SerializedName("stock")
+    var stock: Int,
     @SerializedName("id_nfc")
     var idNfc: Int? // Puede ser nulo si no tiene NFC asociado
 )
